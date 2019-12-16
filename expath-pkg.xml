@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://expath.org/ns/pkg" name="http://www.jmmc.fr/a2p2w" abbrev="a2p2w" version="0.1" spec="1.0">
+    <title>a2p2 web compagnion</title>
+    <dependency package="http://exist-db.org/apps/shared"/>
+</package>

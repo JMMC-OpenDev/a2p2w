@@ -1,0 +1,114 @@
+xquery version "3.1";
+
+module namespace app="http://www.jmmc.fr/a2p2w/templates";
+
+import module namespace templates="http://exist-db.org/xquery/templates" ;
+import module namespace config="http://www.jmmc.fr/a2p2w/config" at "config.xqm";
+import module namespace jmmc-eso-p2="http://www.jmmc.fr/a2p2w/jmmc-eso-p2" at "jmmc-eso-p2.xqm";
+import module namespace functx="http://www.functx.com" ;
+
+declare function app:show($node as node(), $model as map(*), $instrument as xs:string?, $period as xs:string?, $template as xs:string?, $period2 as xs:string?) {
+    (
+        <ul class="breadcrumb"> <li><u>Instrument</u></li>
+        {for $ins in jmmc-eso-p2:instruments() let $a := <a href="?instrument={$ins}">{$ins}</a> 
+        let $li := if($ins = $instrument) then <b>{$a}</b> else $a
+        return <li>{$li}</li>}
+        </ul>
+        ,
+        if (exists($instrument)) then
+            (
+                app:period-breadcrumb($instrument, $period)
+                ,if (exists($period)) then app:show-period( $instrument, $period, $template, $period2 ) else ()
+            )
+        else
+            ()
+    )
+};
+
+declare function app:period-breadcrumb($instrument, $period) {
+	<ul class="breadcrumb"><li><u>Period</u></li>{
+                    for $mp in jmmc-eso-p2:periods($instrument) 
+                        order by number(substring-before($mp, ".")) descending 
+                        group by $p-major := number(substring-before($mp, ".")) 
+                        return (<li>{$p-major}</li>,
+                        for $p in $mp
+                            let $p-minor :=number(substring-after($p, "."))
+                            order by $p-minor descending
+                            return <li style="{if (string($p) = $period) then "font-weight:bold;" else ()}" ><a href="?instrument={$instrument}&amp;period={$p}">.{$p-minor}</a></li>  )
+                }</ul>
+};
+
+declare function app:show-period($instrument, $period, $template as xs:string?, $period2 as xs:string?) {
+    <ul class="breadcrumb"><li><u>Template</u></li>
+        {
+            for $templates in jmmc-eso-p2:template-signatures($instrument, $period)//template
+                group by $type := data($templates/type)
+                order by $type
+                return (<li>{$type}</li>,
+                for $t in $templates
+                    let $name := data($t/templateName)
+                    let $dname := substring-after($name,"_")
+                    return <li style="{if (string($template) = $name) then "font-weight:bold;" else ()}"><a href="?instrument={$instrument}&amp;period={$period}&amp;template={$name}">{$dname}</a></li>
+                )
+        }
+    </ul>
+    ,
+    if (exists($template)) then app:show-template($instrument, $period, $template) else (),
+    if (exists($template) and exists($period2)) then app:show-template($instrument, $period2, $template) else ()
+};
+
+declare function app:show-template($instrument, $period, $template) {
+    <div>
+        <h2><b>{$template}</b> P{$period}</h2>
+        <em>TBD : YAPATOUTESLESCARACDESPARAM....</em>
+        <table class="table">
+        {
+            let $params := array:flatten(jmmc-eso-p2:template($instrument, $period, $template)("parameters"))
+            return for $param in $params
+                let $name := $param("name")
+                let $default := $param("default")
+                let $allowedValues := $param("allowedValues")
+                let $label := $param("label")
+                let $minihelp := $param("minihelp")
+                let $type := $param("type")
+                return <tr><td>{$label}</td><td>{$name}</td><td>{$type}</td><td>{$default}</td><td>{$minihelp}</td></tr>
+        }
+        </table>
+        <pre>    &quot;{ $template }&quot;&#10;    {{&#10;{
+                let $params := array:flatten(jmmc-eso-p2:template($instrument, $period, $template)("parameters"))
+                let $lines := for $param in $params 
+                    let $name := functx:pad-string-to-length("&quot;"|| $param("name") || "&quot;" , " ",30)
+                    let $default := $param("default")
+                    let $default := if(exists($default))
+                        then 
+                            let $str := if(functx:is-a-number($default)) then $default else "&quot;"||$default||"&quot;" 
+                            return "&quot;default&quot;: "||$str
+                        else 
+                            ()
+                    let $allowedValues := $param("allowedValues")
+                    let $allowedValues := if (exists($allowedValues))
+                        then 
+                            let $values := $allowedValues("values")
+                            let $ranges := $allowedValues("ranges")
+                            return if (exists($values)) then 
+                                    "&quot;list&quot;: [" || string-join(array:for-each($values, function($e) { "&quot;"||$e||"&quot;" }) ,", ") || "]"  
+                                else if (exists($ranges)) then
+                                    for $range in $ranges
+                                        return array:for-each($range, 
+                                            function($m) { 
+                                                map:for-each($m, function($e){"&quot;" || $e || "&quot;: "||map:get($m,$e)})
+                                            }
+                                        )
+                                else
+                                    ()
+                        else
+                            ()
+                    let $label := $param("label")
+                    let $minihelp := $param("minihelp")
+                    let $type := $param("type")
+                    return "        " || $name || "{" || string-join(($default,$allowedValues), ", ") || "}"
+                return string-join($lines, ",&#10;")
+            }&#10;    }},
+            </pre>
+    </div>
+};
