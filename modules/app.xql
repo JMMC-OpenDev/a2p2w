@@ -53,6 +53,8 @@ declare function app:show-period($instrument, $period, $template as xs:string?, 
         }
     </ul>
     ,
+    app:show-instrument-constraints($instrument, $period)
+    ,
     if (exists($template)) then app:show-template($instrument, $period, $template) else (),
     if (exists($template) and exists($period2)) then app:show-template($instrument, $period2, $template) else ()
 };
@@ -77,7 +79,15 @@ declare function app:show-template($instrument, $period, $template) {
         <pre>    &quot;{ $template }&quot;&#10;    {{&#10;{
                 let $params := array:flatten(jmmc-eso-p2:template($instrument, $period, $template)("parameters"))
                 let $lines := for $param in $params 
-                    let $name := functx:pad-string-to-length("&quot;"|| $param("name") || "&quot;" , " ",30)
+                    return app:param-line($param)
+                return string-join($lines, ",&#10;")
+            }&#10;    }},
+            </pre>
+    </div>
+};
+
+declare function app:param-line($param) {
+	    let $name := functx:pad-string-to-length("&quot;"|| $param("name") || "&quot;" , " ",30)
                     let $default := $param("default")
                     let $default := if(exists($default))
                         then 
@@ -103,12 +113,30 @@ declare function app:show-template($instrument, $period, $template) {
                                     ()
                         else
                             ()
+                    let $values := $param("values")
+                    let $values := if (exists($values)) then 
+                                    "&quot;list&quot;: [" || string-join(array:for-each($values, function($e) { "&quot;"||$e||"&quot;" }) ,", ") || "]"  
+                                    else 
+                                        ()
+                    let $range := $param("range")
+                    let $range := if (exists($range)) then 
+                                        string-join(map:for-each($range, function($e) { "&quot;"||$e||"&quot;: &quot;"||map:get($range,$e)||"&quot;" }) ,", ")
+                                    else 
+                                        ()
+                    
                     let $label := $param("label")
                     let $minihelp := $param("minihelp")
                     let $type := $param("type")
-                    return "        " || $name || "{" || string-join(($default,$allowedValues), ", ") || "}"
-                return string-join($lines, ",&#10;")
-            }&#10;    }},
-            </pre>
+                    return "        " || $name || "{" || string-join(($default,$values,$allowedValues, $range), ", ") || "}"
+};
+
+declare function app:show-instrument-constraints($instrument, $period) {
+    <div>
+        <h3>Instrument constraints</h3>
+        <pre>{
+            let $params:= for $param in jmmc-eso-p2:instrument-constraints($instrument, $period)
+                return  app:param-line($param)
+            return string-join($params, "&#10;")
+        }</pre>
     </div>
 };
