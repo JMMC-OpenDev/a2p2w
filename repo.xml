@@ -10,4 +10,29 @@
     <target>a2p2w</target>
     <prepare>pre-install.xql</prepare>
     <finish/>
+    <changelog>
+         <!--
+         <change xmlns="" version="X.">
+            <h3>VX. release</h3>
+            <ul>
+              <li></li>
+              <li type="dev"></li>
+              <li type="bugfix"></li>
+            </ul>
+        </change>
+        -->        
+        <change xmlns="" version="0.2">
+            <h3>V0.2 release</h3>
+            <ul>
+                <li>Add instrument package.</li>
+                <li>Enhance param serialization.</li>
+            </ul>
+        </change>
+        <change xmlns="" version="0.1">
+            <h3>V0.1 release</h3>
+            <ul>
+                <li>First public release.</li>
+            </ul>
+        </change>
+    </changelog>
 </meta>

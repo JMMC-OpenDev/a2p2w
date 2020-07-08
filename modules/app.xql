@@ -87,11 +87,21 @@ declare function app:show-template($instrument, $period, $template) {
 };
 
 declare function app:param-line($param) {
-	    let $name := functx:pad-string-to-length("&quot;"|| $param("name") || "&quot;" , " ",30)
+	    let $name := functx:pad-string-to-length("&quot;"|| $param("name") || "&quot;:" , " ",30)
                     let $default := $param("default")
+                    let $type := $param("type")
                     let $default := if(exists($default))
                         then 
-                            let $str := if(functx:is-a-number($default)) then $default else "&quot;"||$default||"&quot;" 
+(:                            let $str := try {:)
+(:                                            if( functx:is-a-number($default))  then $default else "&quot;"||$default||"&quot;" :)
+(:                                        } catch * {:)
+(:                                            ( :)
+(:                                                util:log("info", $name ||" 's default format unrecognized "|| $default),:)
+(:                                                "&quot;"||$default||"&quot;" :)
+(:                                            ) :)
+(:                                        }:)
+                            let $str := if( $type = "number")  then $default else "&quot;"||$default||"&quot;" 
+                                        
                             return "&quot;default&quot;: "||$str
                         else 
                             ()
@@ -120,7 +130,7 @@ declare function app:param-line($param) {
                                         ()
                     let $range := $param("range")
                     let $range := if (exists($range)) then 
-                                        string-join(map:for-each($range, function($e) { "&quot;"||$e||"&quot;: &quot;"||map:get($range,$e)||"&quot;" }) ,", ")
+                                        string-join(map:for-each($range, function($e) { "&quot;"||$e||"&quot;: "||map:get($range,$e) }) ,", ")
                                     else 
                                         ()
                     
@@ -136,7 +146,7 @@ declare function app:show-instrument-constraints($instrument, $period) {
         <pre>{
             let $params:= for $param in jmmc-eso-p2:instrument-constraints($instrument, $period)
                 return  app:param-line($param)
-            return string-join($params, "&#10;")
+            return string-join($params, ",&#10;")
         }</pre>
     </div>
 };
