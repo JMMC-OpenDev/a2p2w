@@ -4,7 +4,7 @@ module namespace jmmc-eso-p2="http://www.jmmc.fr/a2p2w/jmmc-eso-p2";
 
 declare variable $jmmc-eso-p2:cache-name := "jmmc-eso-p2-cache-name";
 declare variable $jmmc-eso-p2:expirable-cache-name := $jmmc-eso-p2:cache-name||"-expirable";
-declare variable $jmmc-eso-p2:expirable-cache := cache:create($jmmc-eso-p2:expirable-cache-name||"-expirable",map { "expireAfterAccess": 1200000 });
+declare variable $jmmc-eso-p2:expirable-cache := cache:create($jmmc-eso-p2:expirable-cache-name,map { "expireAfterAccess": 1200000 });
 
 declare variable $jmmc-eso-p2:ip-url := "https://www.eso.org/copdemo/api/v1/instrumentPackages/";
 
