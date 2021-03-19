@@ -17,7 +17,7 @@ declare function app:show($node as node(), $model as map(*), $instrument as xs:s
         ,
         if (exists($instrument)) then
             (
-                app:period-breadcrumb($instrument, $period)
+                app:period-breadcrumb($instrument, $period, $template)
                 ,if (exists($period)) then app:show-period( $instrument, $period, $template, $period2 ) else ()
             )
         else
@@ -25,7 +25,7 @@ declare function app:show($node as node(), $model as map(*), $instrument as xs:s
     )
 };
 
-declare function app:period-breadcrumb($instrument, $period) {
+declare function app:period-breadcrumb($instrument, $period, $template) {
 	<ul class="breadcrumb"><li><u>Period</u></li>{
                     for $mp in jmmc-eso-p2:periods($instrument) 
                         order by number(substring-before($mp, ".")) descending 
@@ -34,7 +34,7 @@ declare function app:period-breadcrumb($instrument, $period) {
                         for $p in $mp
                             let $p-minor :=number(substring-after($p, "."))
                             order by $p-minor descending
-                            return <li style="{if (string($p) = $period) then "font-weight:bold;" else ()}" ><a href="?instrument={$instrument}&amp;period={$p}">.{$p-minor}</a></li>  )
+                            return <li style="{if (string($p) = $period) then "font-weight:bold;" else ()}" ><a href="?instrument={$instrument}&amp;period={$p}&amp;template={$template}">.{$p-minor}</a></li>  )
                 }</ul>
 };
 
@@ -60,12 +60,20 @@ declare function app:show-period($instrument, $period, $template as xs:string?, 
 };
 
 declare function app:show-template($instrument, $period, $template) {
+    let $template-params := try {
+        jmmc-eso-p2:template($instrument, $period, $template)("parameters")    
+    } catch * {
+        ()
+    }
+    return 
+    if (not(exists($template-params))) then <h2><b>{$template}</b> not present in P{$period}</h2>
+    else
     <div>
         <h2><b>{$template}</b> P{$period}</h2>
         <em>TBD : YAPATOUTESLESCARACDESPARAM....</em>
         <table class="table">
         {
-            let $params := array:flatten(jmmc-eso-p2:template($instrument, $period, $template)("parameters"))
+            let $params := array:flatten($template-params)
             return for $param in $params
                 let $name := $param("name")
                 let $default := $param("default")
@@ -77,7 +85,7 @@ declare function app:show-template($instrument, $period, $template) {
         }
         </table>
         <pre>    &quot;{ $template }&quot;&#10;    {{&#10;{
-                let $params := array:flatten(jmmc-eso-p2:template($instrument, $period, $template)("parameters"))
+                let $params := array:flatten($template-params)
                 let $lines := for $param in $params 
                     return app:param-line($param)
                 return string-join($lines, ",&#10;")
