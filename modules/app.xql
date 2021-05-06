@@ -33,8 +33,9 @@ declare function app:period-breadcrumb($instrument, $period, $template) {
                         return (<li>{$p-major}</li>,
                         for $p in $mp
                             let $p-minor :=number(substring-after($p, "."))
+                            let $href := "?instrument="||$instrument||"&amp;"||"period="||$p||"&amp;"||"template="||$template
                             order by $p-minor descending
-                            return <li style="{if (string($p) = $period) then "font-weight:bold;" else ()}" ><a href="?instrument={$instrument}&amp;period={$p}&amp;template={$template}">.{$p-minor}</a></li>  )
+                            return <li style="{if (string($p) = $period) then "font-weight:bold;" else ()}" ><a href="{$href}">.{$p-minor}</a></li>  )
                 }</ul>
 };
 
@@ -66,7 +67,8 @@ declare function app:show-template($instrument, $period, $template) {
         ()
     }
     return 
-    if (not(exists($template-params))) then <h2><b>{$template}</b> not present in P{$period}</h2>
+    if (not(exists($template)) or string-length($template)=0 ) then ()
+    else if (not(exists($template-params))) then <h2><b>{$template}</b> not present in P{$period}</h2>
     else
     <div>
         <h2><b>{$template}</b> P{$period}</h2>
