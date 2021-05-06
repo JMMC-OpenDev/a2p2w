@@ -21,6 +21,13 @@
             </ul>
         </change>
         -->        
+        <change xmlns="" version="0.3">
+            <h3>V0.3 release</h3>
+            <ul>
+                <li>Add instrument constraints.</li>
+                <li>Switch between period for a given template.</li>
+            </ul>
+        </change>
         <change xmlns="" version="0.2">
             <h3>V0.2 release</h3>
             <ul>
