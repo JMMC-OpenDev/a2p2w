@@ -4,9 +4,9 @@ module namespace jmmc-eso-p2="http://www.jmmc.fr/a2p2w/jmmc-eso-p2";
 
 declare variable $jmmc-eso-p2:cache-name := "jmmc-eso-p2-cache-name";
 declare variable $jmmc-eso-p2:expirable-cache-name := $jmmc-eso-p2:cache-name||"-expirable";
-declare variable $jmmc-eso-p2:expirable-cache := cache:create($jmmc-eso-p2:expirable-cache-name,map { "expireAfterAccess": 1200000 });
+declare variable $jmmc-eso-p2:expirable-cache := cache:create($jmmc-eso-p2:expirable-cache-name||"-expirable",map { "expireAfterAccess": 1200000 });
 
-declare variable $jmmc-eso-p2:ip-url := "https://www.eso.org/copdemo/api/v1/instrumentPackages/";
+declare variable $jmmc-eso-p2:ip-url := "https://www.eso.org/cop/api/v1/instrumentPackages/";
 
 declare function jmmc-eso-p2:instruments() as xs:string*
 {
@@ -34,6 +34,7 @@ declare function jmmc-eso-p2:q($paths){
 
 declare function jmmc-eso-p2:q($paths){
     let $url := string-join(($jmmc-eso-p2:ip-url, $paths), "/")
+    let $log := util:log("info", "q : "|| $url)
     let $c := cache:get($jmmc-eso-p2:cache-name, $url)
     return
         if(exists($c))

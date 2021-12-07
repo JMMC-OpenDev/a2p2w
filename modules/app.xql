@@ -61,18 +61,23 @@ declare function app:show-period($instrument, $period, $template as xs:string?, 
 };
 
 declare function app:show-template($instrument, $period, $template) {
+    if (string-length($template) > 0 ) then 
     let $template-params := try {
         jmmc-eso-p2:template($instrument, $period, $template)("parameters")    
     } catch * {
         ()
     }
     return 
-    if (not(exists($template)) or string-length($template)=0 ) then ()
-    else if (not(exists($template-params))) then <h2><b>{$template}</b> not present in P{$period}</h2>
+    if (not(exists($template-params))) then <h2><b>{$template}</b> not present in P{$period}</h2>
     else
     <div>
         <h2><b>{$template}</b> P{$period}</h2>
-        <em>TBD : YAPATOUTESLESCARACDESPARAM....</em>
+        {
+            let $our-keys := ( "name","default", "allowedValues", "label", "minihelp", "type" ) (: copy here the keys used in the code below :)
+            let $params-keys := (distinct-values( for $p in $template-params?* return map:keys($p) ))
+            let $unhandled-keys := $params-keys[not(.=$our-keys)]
+            return if (exists($unhandled-keys)) then  <div class="alert alert-danger" role="alert">{$unhandled-keys=>string-join("/")} parameter key(s) not handled.</div> else ()
+        }
         <table class="table">
         {
             let $params := array:flatten($template-params)
@@ -86,14 +91,42 @@ declare function app:show-template($instrument, $period, $template) {
                 return <tr><td>{$label}</td><td>{$name}</td><td>{$type}</td><td>{$default}</td><td>{$minihelp}</td></tr>
         }
         </table>
-        <pre>    &quot;{ $template }&quot;&#10;    {{&#10;{
+        { app:_show-template-jsonconf($template, $template-params) }
+    </div>
+    else
+        <div>
+            Please choose a template
+        </div>
+};
+
+declare function app:_show-template-jsonconf($template, $template-params){
+    <pre>&quot;{ $template }.tsf&quot;:&#10;    {{&#10;{
                 let $params := array:flatten($template-params)
                 let $lines := for $param in $params 
                     return app:param-line($param)
                 return string-join($lines, ",&#10;")
             }&#10;    }},
-            </pre>
-    </div>
+    </pre>
+};
+
+declare
+ %rest:GET
+(:    %rest:produces("application/json"):)
+(:    %output:media-type("application/json"):)
+(: : %output:method("json"):)
+(:    %output:method("text"):)
+    %rest:path("/a2p2/{$instrument}/{$period}/{$template}")
+function app:show-template-jsonconf($instrument, $period, $template) {
+    let $template-params := try {
+        jmmc-eso-p2:template($instrument, $period, $template)("parameters")    
+    } catch * {
+        ()
+    }
+    return
+        if ( exists($template-params) ) then 
+            data(app:_show-template-jsonconf($template, $template-params))
+        else
+            ""
 };
 
 declare function app:param-line($param) {
@@ -110,7 +143,7 @@ declare function app:param-line($param) {
 (:                                                "&quot;"||$default||"&quot;" :)
 (:                                            ) :)
 (:                                        }:)
-                            let $str := if( $type = "number")  then $default else "&quot;"||$default||"&quot;" 
+                            let $str := if( $type = ("number","integer", "numlist") )  then $default else "&quot;"||$default||"&quot;" 
                                         
                             return "&quot;default&quot;: "||$str
                         else 

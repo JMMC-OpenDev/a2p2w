@@ -21,6 +21,13 @@
             </ul>
         </change>
         -->        
+        <change xmlns="" version="0.4">
+            <h3>2021-12-07 release</h3>
+            <ul>
+                <li>Handled numlist type.</li>
+                <li>Expose better json for a2p2 reuse (API to be advertised).</li>
+            </ul>
+        </change>
         <change xmlns="" version="0.3">
             <h3>V0.3 release</h3>
             <ul>
