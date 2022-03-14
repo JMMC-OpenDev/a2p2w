@@ -21,6 +21,12 @@
             </ul>
         </change>
         -->        
+        <change xmlns="" version="0.5">
+            <h3>2022-03-14 release</h3>
+            <ul>
+                <li>Fix technical dependencies for deployement on eXistDB 6.</li>
+            </ul>
+        </change>
         <change xmlns="" version="0.4">
             <h3>2021-12-07 release</h3>
             <ul>
