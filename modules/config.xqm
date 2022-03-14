@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1";
 
 (:~
  : A set of helper functions to access the application context from
@@ -6,7 +6,8 @@ xquery version "3.0";
  :)
 module namespace config="http://www.jmmc.fr/a2p2w/config";
 
-declare namespace templates="http://exist-db.org/xquery/templates";
+import module namespace templates="http://exist-db.org/xquery/html-templating";
+import module namespace lib="http://exist-db.org/xquery/html-templating/lib";
 
 declare namespace repo="http://exist-db.org/xquery/repo";
 declare namespace expath="http://expath.org/ns/pkg";
