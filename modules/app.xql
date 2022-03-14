@@ -2,7 +2,8 @@ xquery version "3.1";
 
 module namespace app="http://www.jmmc.fr/a2p2w/templates";
 
-import module namespace templates="http://exist-db.org/xquery/templates" ;
+import module namespace templates="http://exist-db.org/xquery/html-templating";
+import module namespace lib="http://exist-db.org/xquery/html-templating/lib";
 import module namespace config="http://www.jmmc.fr/a2p2w/config" at "config.xqm";
 import module namespace jmmc-eso-p2="http://www.jmmc.fr/a2p2w/jmmc-eso-p2" at "jmmc-eso-p2.xqm";
 import module namespace functx="http://www.functx.com" ;
