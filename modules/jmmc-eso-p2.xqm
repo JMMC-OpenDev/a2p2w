@@ -12,12 +12,17 @@ declare function jmmc-eso-p2:instruments() as xs:string*
 {
     ("GRAVITY", "MATISSE",  "PIONIER")
 };
-
-declare function jmmc-eso-p2:query($paths,$use-permanent-cache as xs:boolean*){
+(: ~ 
+ : Query p2 for given path elements.
+ : @param paths list of path to construct a rest endpoint
+ : @param use-cache use true to use cache or false to force refresh
+ : @return a json doc for given path
+ :)
+declare function jmmc-eso-p2:query($paths,$use-cache as xs:boolean*){
     let $url := string-join(($jmmc-eso-p2:ip-url, $paths), "/")
     let $c := cache:get($jmmc-eso-p2:cache-name, $url)
     return
-        if(exists($c) and $use-permanent-cache)
+        if(exists($c) and $use-cache)
         then 
             $c
         else
@@ -28,24 +33,13 @@ declare function jmmc-eso-p2:query($paths,$use-permanent-cache as xs:boolean*){
                 $res
 };
 
+(: ~ 
+ : Query p2 for given path elements.
+ : @param paths list of path to construct a rest endpoint
+ : @return a json doc for given path
+ :)
 declare function jmmc-eso-p2:q($paths){
    jmmc-eso-p2:query($paths, true())
-};
-
-declare function jmmc-eso-p2:q($paths){
-    let $url := string-join(($jmmc-eso-p2:ip-url, $paths), "/")
-    let $log := util:log("info", "q : "|| $url)
-    let $c := cache:get($jmmc-eso-p2:cache-name, $url)
-    return
-        if(exists($c))
-        then 
-            $c
-        else
-            let $log := util:log("info", "trying to get data at "||$url)
-            let $res := json-doc($url)
-            let $store := cache:put($jmmc-eso-p2:cache-name, $url, $res)
-            return 
-                $res
 };
 
 declare function jmmc-eso-p2:periods($instrument) (: as xs:string ?:)

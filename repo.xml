@@ -21,6 +21,12 @@
             </ul>
         </change>
         -->        
+        <change xmlns="" version="0.6">
+            <h3>2022-05-11 release</h3>
+            <ul>
+                <li>Fix duplicated function.</li>
+            </ul>
+        </change>
         <change xmlns="" version="0.5">
             <h3>2022-03-14 release</h3>
             <ul>
