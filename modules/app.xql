@@ -72,7 +72,7 @@ declare function app:show-template($instrument, $period, $template) {
     if (not(exists($template-params))) then <h2><b>{$template}</b> not present in P{$period}</h2>
     else
     <div>
-        <h2><b>{$template}</b> P{$period}</h2>
+        <h2><a href="{jmmc-eso-p2:template-url($instrument, $period, $template)}" target="_blank"><b>{$template}</b></a> P{$period}</h2>
         {
             let $our-keys := ( "name","default", "allowedValues", "label", "minihelp", "type" ) (: copy here the keys used in the code below :)
             let $params-keys := (distinct-values( for $p in $template-params?* return map:keys($p) ))

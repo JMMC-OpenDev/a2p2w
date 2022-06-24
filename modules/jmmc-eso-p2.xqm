@@ -12,6 +12,7 @@ declare function jmmc-eso-p2:instruments() as xs:string*
 {
     ("GRAVITY", "MATISSE",  "PIONIER")
 };
+
 (: ~ 
  : Query p2 for given path elements.
  : @param paths list of path to construct a rest endpoint
@@ -42,6 +43,7 @@ declare function jmmc-eso-p2:q($paths){
    jmmc-eso-p2:query($paths, true())
 };
 
+
 declare function jmmc-eso-p2:periods($instrument) (: as xs:string ?:)
 {
     (: add last '' to force trailing / :)
@@ -70,6 +72,14 @@ declare function jmmc-eso-p2:template($instrument, $period, $template)
 {
     jmmc-eso-p2:q(($instrument,$period, "templateSignatures", $template))
 };
+
+(: ~ Output template url 
+ : :)
+declare function jmmc-eso-p2:template-url($instrument, $period, $template)
+{
+    string-join(($jmmc-eso-p2:ip-url, $instrument,$period, "templateSignatures", $template),'/')
+};
+
 
 (: ~ Output instrumentConstraints as xml 
  :)
