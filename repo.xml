@@ -21,6 +21,12 @@
             </ul>
         </change>
         -->        
+         <change xmlns="" version="0.7">
+            <h3>2022-05-12 release</h3>
+            <ul>
+                <li>Add robots.txt</li>
+            </ul>
+        </change>
         <change xmlns="" version="0.6">
             <h3>2022-05-11 release</h3>
             <ul>
